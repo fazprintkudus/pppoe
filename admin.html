@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E-MONITOR SERVER - Admin Dashboard</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        
+        /* Theme Variables */
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: rgba(30, 41, 59, 0.8);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(34, 197, 94, 0.2);
+            --accent: #22c55e;
+            --accent-secondary: #10b981;
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #e2e8f0;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-color: rgba(34, 197, 94, 0.3);
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: conic-gradient(from 0deg at 50% 50%, 
+                var(--bg-primary) 0deg, 
+                rgba(34, 197, 94, 0.1) 60deg,
+                var(--bg-primary) 120deg,
+                rgba(16, 185, 129, 0.1) 180deg,
+                var(--bg-primary) 240deg,
+                rgba(5, 150, 105, 0.1) 300deg,
+                var(--bg-primary) 360deg);
+            animation: rotateBg 30s linear infinite;
+        }
+        
+        @keyframes rotateBg {
+            to { transform: rotate(360deg); }
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            animation: floatShape 20s ease-in-out infinite;
+        }
+        
+        .floating-shape:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            top: -10%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-shape:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            top: 50%;
+            right: -5%;
+            animation-delay: -5s;
+        }
+        
+        .floating-shape:nth-child(3) {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, #14b8a6, #0d9488);
+            bottom: -10%;
+            left: 30%;
+            animation-delay: -10s;
+        }
+        
+        @keyframes floatShape {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.9); }
+            75% { transform: translate(20px, 30px) scale(1.05); }
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.2), transparent);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::before {
+            width: 100%;
+        }
+        
+        .nav-link:hover {
+            transform: translateX(5px);
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.2) 0%, transparent 100%);
+            border-left: 3px solid #22c55e;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+        
+        /* Stat Card Animation */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out backwards;
+        }
+        
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { opacity: 0; transform: translate(0, 0); }
+            50% { opacity: 1; transform: translate(-20%, 20%); }
+        }
+        
+        /* Device Card Animation */
+        .device-card {
+            animation: fadeInScale 0.5s ease-out backwards;
+        }
+        
+        .device-card:hover {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        /* Status Indicators */
+        .status-online {
+            color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        
+        .status-offline {
+            color: #ef4444;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .pulse-dot {
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+        
+        /* Button Animations */
+        .btn-animated {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-animated::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-animated:hover::before {
+            left: 100%;
+        }
+        
+        .btn-animated:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+        
+        /* Table Row Animation */
+        .table-row {
+            animation: slideIn 0.5s ease-out backwards;
+            transition: all 0.3s ease;
+        }
+        
+        .table-row:hover {
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* View Transitions */
+        .view {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Toast Animation */
+        .toast {
+            animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.7s forwards;
+        }
+        
+        @keyframes toastIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes toastOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: relative;
+            width: 100px;
+            height: 36px;
+            background: var(--bg-secondary);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+        
+        .theme-toggle-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .theme-toggle-btn.active {
+            background: linear-gradient(135deg, #22c55e, #10b981);
+            color: white;
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #22c55e 0%, #10b981 50%, #14b8a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        
+        /* Mobile Sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Ripple Effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 0.5s;
+        }
+        
+        .ripple:active::after {
+            transform: scale(0, 0);
+            opacity: 1;
+            transition: 0s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-shapes">
+            <div class="floating-shape"></div>
+            <div class="floating-shape"></div>
+            <div class="floating-shape"></div>
+        </div>
+    </div>
+    
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 z-50 transition-transform md:translate-x-0">
+        <div class="h-16 flex items-center justify-between px-4 border-b border-orange-500/20">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 flex items-center justify-center">
+                    <img src="https://images.seeklogo.com/logo-png/27/1/rollbar-logo-png_seeklogo-273862.png" alt="Logo" class="w-6 h-6 object-contain">
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm">E-MONITOR</h1>
+                    <p class="text-[10px] text-orange-400 uppercase tracking-wider">Admin Panel</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-3 space-y-1 overflow-y-auto" style="height: calc(100vh - 180px);">
+            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">Main Menu</p>
+            
+            <a href="#" onclick="showView('dashboard')" class="nav-link active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-dashboard">
+                <i class="fas fa-chart-pie w-5 text-orange-400"></i>
+                <span>Dashboard</span>
+            </a>
+            
+            <a href="#" onclick="showView('billing')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-billing">
+                <i class="fas fa-file-invoice-dollar w-5 text-green-400"></i>
+                <span>Kelola Tagihan</span>
+            </a>
+            
+            <a href="#" onclick="showView('notifications')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-notifications">
+                <i class="fab fa-telegram w-5 text-blue-400"></i>
+                <span>Notifikasi Telegram</span>
+                <span class="ml-auto w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center" id="notifBadge">0</span>
+            </a>
+            
+            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2 mt-4">Network Tools</p>
+            
+            <a href="#" onclick="showView('mikhmon')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-mikhmon">
+                <i class="fas fa-network-wired w-5 text-pink-400"></i>
+                <span>Mikhmon Online</span>
+            </a>
+            
+            <a href="#" onclick="showView('adguard')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-adguard">
+                <i class="fas fa-shield-alt w-5 text-purple-400"></i>
+                <span>AdGuard Home</span>
+            </a>
+            
+            <a href="#" onclick="showView('monitor')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-monitor">
+                <i class="fas fa-heartbeat w-5 text-red-400"></i>
+                <span>Monitor Server</span>
+            </a>
+            
+            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2 mt-4">System</p>
+            
+            <a href="#" onclick="showView('setup')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-setup">
+                <i class="fas fa-cog w-5 text-slate-400"></i>
+                <span>Setup Google Sheet</span>
+            </a>
+        </nav>
+        
+        <!-- Theme Toggle & Logout -->
+        <div class="absolute bottom-0 left-0 right-0 p-3 border-t border-orange-500/10 space-y-3">
+            <div class="flex items-center justify-between px-2">
+                <span class="text-xs text-slate-500">Tema</span>
+                <div class="theme-toggle" id="themeToggle">
+                    <button class="theme-toggle-btn active" data-theme="dark" onclick="setTheme('dark')">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="theme-toggle-btn" data-theme="light" onclick="setTheme('light')">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    <button class="theme-toggle-btn" data-theme="auto" onclick="setTheme('auto')">
+                        <i class="fas fa-circle-half-stroke"></i>
+                    </button>
+                </div>
+            </div>
+            <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium transition ripple">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="md:ml-64 min-h-screen">
+        <!-- Header -->
+        <header class="sticky top-0 z-30 bg-opacity-80 backdrop-blur-lg border-b border-orange-500/10 px-4 h-14 flex items-center justify-between" style="background: var(--bg-card);">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <h2 class="text-base font-semibold" id="pageTitle">Dashboard</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500" id="currentTime"></span>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 flex items-center justify-center font-bold text-sm text-white">A</div>
+            </div>
+        </header>
+        
+        <div class="p-4 md:p-6">
+            
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="view">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="stat-card card rounded-2xl p-4 border-l-4 border-orange-500">
+                        <div class="flex items-center justify-between relative z-10">
+                            <div>
+                                <p class="text-slate-400 text-xs uppercase">Total AP</p>
+                                <p class="text-2xl font-bold mt-1">8</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                                <i class="fas fa-wifi text-orange-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card card rounded-2xl p-4 border-l-4 border-pink-500">
+                        <div class="flex items-center justify-between relative z-10">
+                            <div>
+                                <p class="text-slate-400 text-xs uppercase">Pelanggan</p>
+                                <p class="text-2xl font-bold mt-1">5</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-pink-500/20 flex items-center justify-center">
+                                <i class="fas fa-users text-pink-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card card rounded-2xl p-4 border-l-4 border-green-500">
+                        <div class="flex items-center justify-between relative z-10">
+                            <div>
+                                <p class="text-slate-400 text-xs uppercase">Pendapatan</p>
+                                <p class="text-2xl font-bold mt-1" id="totalRevenue">Rp 360k</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                                <i class="fas fa-money-bill-wave text-green-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card card rounded-2xl p-4 border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between relative z-10">
+                            <div>
+                                <p class="text-slate-400 text-xs uppercase">Status</p>
+                                <p class="text-lg font-bold text-green-400 mt-1 flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></span>
+                                    Online
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                                <i class="fas fa-server text-purple-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Devices Grid -->
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <i class="fas fa-network-wired text-orange-400"></i>
+                    Perangkat Jaringan
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="deviceGrid"></div>
+            </div>
+            
+            <!-- Billing View -->
+            <div id="view-billing" class="view hidden">
+                <div class="card rounded-2xl overflow-hidden">
+                    <div class="p-4 border-b border-green-500/10 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-semibold flex items-center gap-2">
+                                <i class="fas fa-file-invoice-dollar text-green-400"></i>
+                                Daftar Tagihan Pelanggan
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">Kelola pembayaran dan langganan • Auto-sync dengan Google Sheets</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="fetchFromSheet()" class="btn-animated flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs font-medium transition">
+                                <i class="fas fa-cloud-download-alt"></i>
+                                <span class="hidden sm:inline">Ambil dari</span> Sheet
+                            </button>
+                            <button onclick="checkAllStatus()" class="btn-animated flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-xs font-medium transition">
+                                <i class="fas fa-satellite-dish"></i>
+                                Ping <span class="hidden sm:inline">Semua</span>
+                            </button>
+                            <button onclick="syncAllToSheet()" class="btn-animated flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-xs font-medium transition">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Sync <span class="hidden sm:inline">ke Sheet</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Bar -->
+                    <div class="px-4 py-2 bg-black/20 flex flex-wrap items-center gap-4 text-xs border-b border-green-500/10">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-users text-green-400"></i>
+                            <span class="text-slate-400">Total:</span>
+                            <span class="font-medium" id="totalClients">5 pelanggan</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-wifi text-green-400"></i>
+                            <span class="text-slate-400">Online:</span>
+                            <span class="font-medium" id="onlineCount">0/0</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-cloud text-green-400"></i>
+                            <span class="text-slate-400">Sync:</span>
+                            <span class="font-medium text-green-400" id="syncStatus">
+                                <i class="fas fa-check-circle"></i> Terhubung
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2 ml-auto">
+                            <i class="fas fa-clock text-slate-500"></i>
+                            <span class="text-slate-500" id="lastSyncText">Belum sync</span>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-white/5 text-left text-xs uppercase tracking-wider text-slate-500">
+                                    <th class="px-4 py-3">Pelanggan</th>
+                                    <th class="px-4 py-3">IP Address</th>
+                                    <th class="px-4 py-3">Paket</th>
+                                    <th class="px-4 py-3">Harga</th>
+                                    <th class="px-4 py-3">Status Koneksi</th>
+                                    <th class="px-4 py-3">Tgl Bayar Terakhir</th>
+                                    <th class="px-4 py-3">Expired</th>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="billingTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notifications View -->
+            <div id="view-notifications" class="view hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card rounded-2xl overflow-hidden">
+                        <div class="p-4 border-b border-orange-500/10 bg-gradient-to-r from-blue-600/20 to-cyan-600/20">
+                            <h3 class="font-semibold flex items-center gap-2">
+                                <i class="fab fa-telegram text-blue-400"></i>
+                                Konfigurasi Telegram Bot
+                            </h3>
+                        </div>
+                        <div class="p-4 space-y-4">
+                            <div>
+                                <label class="text-sm text-slate-400 mb-2 block">Bot Token</label>
+                                <input type="text" id="telegramToken" placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz" 
+                                    class="w-full px-4 py-3 bg-black/30 border border-orange-500/20 rounded-xl placeholder-slate-500 outline-none focus:border-orange-500/50 transition">
+                            </div>
+                            <div>
+                                <label class="text-sm text-slate-400 mb-2 block">Chat ID Admin</label>
+                                <input type="text" id="telegramChatId" placeholder="123456789" 
+                                    class="w-full px-4 py-3 bg-black/30 border border-orange-500/20 rounded-xl placeholder-slate-500 outline-none focus:border-orange-500/50 transition">
+                            </div>
+                            <button onclick="saveTelegramConfig()" class="btn-animated w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium transition">
+                                <i class="fas fa-save mr-2"></i>Simpan Konfigurasi
+                            </button>
+                            <button onclick="testTelegram()" class="btn-animated w-full py-3 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30 rounded-xl font-medium transition">
+                                <i class="fas fa-paper-plane mr-2"></i>Kirim Pesan Test
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-2xl overflow-hidden">
+                        <div class="p-4 border-b border-orange-500/10 bg-gradient-to-r from-orange-600/20 to-red-600/20">
+                            <h3 class="font-semibold flex items-center gap-2">
+                                <i class="fas fa-bell text-orange-400"></i>
+                                Pelanggan Akan Expired
+                            </h3>
+                        </div>
+                        <div class="p-4 space-y-3" id="expiringList"></div>
+                    </div>
+                </div>
+                
+                <div class="card rounded-2xl mt-6 p-4">
+                    <h4 class="font-semibold mb-4 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-blue-400"></i>
+                        Cara Setup Telegram Bot
+                    </h4>
+                    <ol class="text-sm text-slate-400 space-y-2 list-decimal list-inside">
+                        <li>Buka Telegram dan cari <code class="bg-black/30 px-2 py-0.5 rounded">@BotFather</code></li>
+                        <li>Kirim <code class="bg-black/30 px-2 py-0.5 rounded">/newbot</code> dan ikuti instruksi</li>
+                        <li>Salin Bot Token yang diberikan</li>
+                        <li>Untuk Chat ID, cari <code class="bg-black/30 px-2 py-0.5 rounded">@userinfobot</code></li>
+                        <li>Salin ID yang diberikan</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Mikhmon View -->
+            <div id="view-mikhmon" class="view hidden">
+                <div class="card rounded-2xl p-6">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center animate-pulse">
+                            <i class="fas fa-network-wired text-2xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Mikhmon Online</h3>
+                            <p class="text-slate-400 text-sm">Mikrotik Hotspot Monitor</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white/5 rounded-xl p-4 text-center">
+                            <i class="fas fa-globe text-pink-400 text-2xl mb-2"></i>
+                            <p class="text-xs text-slate-400">URL</p>
+                            <p class="text-sm font-medium truncate">phaphaza.mikhmon.me</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 text-center">
+                            <i class="fas fa-check-circle text-green-400 text-2xl mb-2"></i>
+                            <p class="text-xs text-slate-400">Status</p>
+                            <p class="text-sm font-medium text-green-400">Online</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 text-center">
+                            <i class="fas fa-lock text-cyan-400 text-2xl mb-2"></i>
+                            <p class="text-xs text-slate-400">SSL</p>
+                            <p class="text-sm font-medium">HTTPS</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 text-center">
+                            <i class="fas fa-cloud text-blue-400 text-2xl mb-2"></i>
+                            <p class="text-xs text-slate-400">Type</p>
+                            <p class="text-sm font-medium">Cloud</p>
+                        </div>
+                    </div>
+                    
+                    <a href="https://phaphaza.mikhmon.me/" target="_blank" class="btn-animated w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 rounded-xl font-semibold transition">
+                        <i class="fas fa-external-link-alt"></i>
+                        Buka Mikhmon Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            <!-- AdGuard View -->
+            <div id="view-adguard" class="view hidden">
+                <div class="card rounded-2xl p-6">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-2xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">AdGuard Home</h3>
+                            <p class="text-slate-400 text-sm">Network-wide Ad Blocking</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white/5 rounded-xl p-4 text-center">
+                            <i class="fas fa-server text-green-400 text-2xl mb-2"></i>
+                            <p class="text-xs text-slate-400">IP Address</p>
+                            <p class="text-sm font-medium">192.168.18.1</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 text-center">
+                            <i class="fas fa-plug text-yellow-400 text-2xl mb-2"></i>
+                            <p class="text-xs text-slate-400">Port</p>
+                            <p class="text-sm font-medium">3000</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 text-center">
+                            <i class="fas fa-check-circle text-green-400 text-2xl mb-2"></i>
+                            <p class="text-xs text-slate-400">Status</p>
+                            <p class="text-sm font-medium text-green-400">Active</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 text-center">
+                            <i class="fas fa-ban text-red-400 text-2xl mb-2"></i>
+                            <p class="text-xs text-slate-400">Blocking</p>
+                            <p class="text-sm font-medium">Enabled</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                        <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-center hover:scale-105 transition">
+                            <i class="fas fa-ad text-red-400 mb-1"></i>
+                            <p class="text-xs">Ad Blocking</p>
+                        </div>
+                        <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 text-center hover:scale-105 transition">
+                            <i class="fas fa-user-secret text-yellow-400 mb-1"></i>
+                            <p class="text-xs">Anti Tracking</p>
+                        </div>
+                        <div class="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 text-center hover:scale-105 transition">
+                            <i class="fas fa-child text-orange-400 mb-1"></i>
+                            <p class="text-xs">Parental</p>
+                        </div>
+                        <div class="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3 text-center hover:scale-105 transition">
+                            <i class="fas fa-tachometer-alt text-cyan-400 mb-1"></i>
+                            <p class="text-xs">Fast DNS</p>
+                        </div>
+                    </div>
+                    
+                    <a href="http://192.168.18.1:3000" target="_blank" class="btn-animated w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-xl font-semibold transition">
+                        <i class="fas fa-external-link-alt"></i>
+                        Buka AdGuard Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Monitor View -->
+            <div id="view-monitor" class="view hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card rounded-2xl p-6">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                                <i class="fas fa-globe text-xl text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold">DNS Server</h3>
+                                <p class="text-slate-400 text-xs">Uptime Monitor</p>
+                            </div>
+                            <div class="flex items-center gap-2 px-3 py-1 bg-green-500/20 rounded-full">
+                                <span class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></span>
+                                <span class="text-green-400 text-xs font-medium">Online</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                                <span class="text-sm text-slate-400">Google DNS</span>
+                                <span class="text-green-400 text-sm">● 8.8.8.8</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                                <span class="text-sm text-slate-400">Cloudflare</span>
+                                <span class="text-green-400 text-sm">● 1.1.1.1</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                                <span class="text-sm text-slate-400">AdGuard</span>
+                                <span class="text-green-400 text-sm">● 192.168.18.1</span>
+                            </div>
+                        </div>
+                        <a href="https://uptime.phaphaza.my.id/status/dnspublik" target="_blank" class="btn-animated w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium transition">
+                            <i class="fas fa-external-link-alt"></i>
+                            Lihat Detail Status
+                        </a>
+                    </div>
+                    
+                    <div class="card rounded-2xl p-6">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                                <i class="fas fa-wifi text-xl text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold">Router / Access Point</h3>
+                                <p class="text-slate-400 text-xs">Uptime Monitor</p>
+                            </div>
+                            <div class="flex items-center gap-2 px-3 py-1 bg-green-500/20 rounded-full">
+                                <span class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></span>
+                                <span class="text-green-400 text-xs font-medium">Online</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2 mb-4" id="routerStatusList"></div>
+                        <a href="https://uptime.phaphaza.my.id/status/ap" target="_blank" class="btn-animated w-full flex items-center justify-center gap-2 py-3 bg-orange-600 hover:bg-orange-700 rounded-xl font-medium transition">
+                            <i class="fas fa-external-link-alt"></i>
+                            Lihat Detail Status
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Setup View -->
+            <div id="view-setup" class="view hidden">
+                <div class="card rounded-2xl overflow-hidden">
+                    <div class="p-4 border-b border-green-500/10 bg-gradient-to-r from-green-600/20 to-emerald-600/20">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <i class="fas fa-table text-green-400"></i>
+                            Setup Google Sheets Integration
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-1">Ikuti langkah-langkah berikut untuk menghubungkan aplikasi dengan Google Spreadsheet</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <!-- Step 1 -->
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center font-bold text-sm shrink-0 shadow-lg">1</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-green-400">Buat Google Spreadsheet Baru</h4>
+                                <p class="text-sm text-slate-400 mt-1">Buka Google Sheets dan buat spreadsheet baru untuk menyimpan data tagihan.</p>
+                                <a href="https://sheets.google.com" target="_blank" class="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm transition">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    Buka Google Sheets
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2 -->
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center font-bold text-sm shrink-0 shadow-lg">2</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-green-400">Buat Header Kolom di Baris Pertama</h4>
+                                <p class="text-sm text-slate-400 mt-1">Copy header berikut dan paste di baris pertama spreadsheet:</p>
+                                <div class="relative mt-2">
+                                    <button onclick="copyHeader()" class="absolute top-2 right-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-xs transition flex items-center gap-1">
+                                        <i class="fas fa-copy"></i> Copy Header
+                                    </button>
+                                    <div id="headerCode" class="p-4 bg-black/50 rounded-xl text-xs text-yellow-400 overflow-x-auto font-mono">
+Username | Name | PackageId | PackageName | Price | LastPay | Expired | Status | IP | Port</div>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-2"><i class="fas fa-info-circle mr-1"></i> Pisahkan setiap kolom ke cell yang berbeda (A1, B1, C1, dst.)</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3 -->
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center font-bold text-sm shrink-0 shadow-lg">3</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-green-400">Buka Apps Script Editor</h4>
+                                <p class="text-sm text-slate-400 mt-1">Di spreadsheet, klik menu <code class="bg-black/30 px-2 py-0.5 rounded">Extensions</code> → <code class="bg-black/30 px-2 py-0.5 rounded">Apps Script</code></p>
+                                <div class="mt-3 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                                    <div class="flex items-center gap-2 text-xs text-slate-400">
+                                        <i class="fas fa-lightbulb text-yellow-400"></i>
+                                        <span>Ini akan membuka editor kode Google Apps Script di tab baru</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 4 -->
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center font-bold text-sm shrink-0 shadow-lg">4</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-green-400">Paste Kode Script Berikut</h4>
+                                <p class="text-sm text-slate-400 mt-1">Hapus semua kode yang ada, lalu paste kode berikut:</p>
+                                <div class="relative mt-3">
+                                    <div class="absolute top-2 right-2 flex gap-2">
+                                        <button onclick="copyScript()" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-xs transition flex items-center gap-1">
+                                            <i class="fas fa-copy"></i> Copy Kode
+                                        </button>
+                                    </div>
+                                    <pre id="scriptCode" class="p-4 pt-12 bg-black/70 rounded-xl text-xs overflow-x-auto text-green-400 max-h-96 overflow-y-auto font-mono border border-green-500/20">function doGet(e) {
+  return handleRequest(e);
+}
+
+function doPost(e) {
+  return handleRequest(e);
+}
+
+function handleRequest(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var action = e.parameter.action;
+  
+  var output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
+  
+  // UPDATE ACTION - Update or create new row
+  if (action === 'update') {
+    var username = e.parameter.username;
+    var name = e.parameter.name;
+    var packageId = e.parameter.packageId;
+    var packageName = e.parameter.packageName;
+    var price = e.parameter.price;
+    var lastPay = e.parameter.lastPay;
+    var expired = e.parameter.expired;
+    var status = e.parameter.status;
+    var ip = e.parameter.ip || '';
+    var port = e.parameter.port || '';
+    
+    // Find existing row by username
+    var found = false;
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][0] === username) {
+        // Update existing row
+        sheet.getRange(i + 1, 2).setValue(name);
+        sheet.getRange(i + 1, 3).setValue(packageId);
+        sheet.getRange(i + 1, 4).setValue(packageName);
+        sheet.getRange(i + 1, 5).setValue(price);
+        sheet.getRange(i + 1, 6).setValue(lastPay);
+        sheet.getRange(i + 1, 7).setValue(expired);
+        sheet.getRange(i + 1, 8).setValue(status);
+        sheet.getRange(i + 1, 9).setValue(ip);
+        sheet.getRange(i + 1, 10).setValue(port);
+        found = true;
+        output.setContent(JSON.stringify({
+          success: true,
+          action: 'updated',
+          username: username
+        }));
+        return output;
+      }
+    }
+    
+    // If not found, create new row
+    if (!found) {
+      sheet.appendRow([
+        username, name, packageId, packageName,
+        price, lastPay, expired, status, ip, port
+      ]);
+      output.setContent(JSON.stringify({
+        success: true,
+        action: 'created',
+        username: username
+      }));
+    }
+    return output;
+  }
+  
+  // GET ACTION - Return all data as JSON
+  if (action === 'get') {
+    var result = {};
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][0]) {
+        result[data[i][0]] = {
+          name: data[i][1],
+          packageId: data[i][2],
+          packageName: data[i][3],
+          price: data[i][4],
+          lastPay: data[i][5],
+          expired: data[i][6],
+          status: data[i][7],
+          ip: data[i][8],
+          port: data[i][9]
+        };
+      }
+    }
+    output.setContent(JSON.stringify(result));
+    return output;
+  }
+  
+  // DELETE ACTION - Delete a row by username
+  if (action === 'delete') {
+    var usernameToDelete = e.parameter.username;
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][0] === usernameToDelete) {
+        sheet.deleteRow(i + 1);
+        output.setContent(JSON.stringify({
+          success: true,
+          action: 'deleted',
+          username: usernameToDelete
+        }));
+        return output;
+      }
+    }
+    output.setContent(JSON.stringify({
+      success: false,
+      error: 'Username not found'
+    }));
+    return output;
+  }
+  
+  // DEFAULT - Return all data
+  var result = {};
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0]) {
+      result[data[i][0]] = {
+        name: data[i][1],
+        packageId: data[i][2],
+        packageName: data[i][3],
+        price: data[i][4],
+        lastPay: data[i][5],
+        expired: data[i][6],
+        status: data[i][7],
+        ip: data[i][8],
+        port: data[i][9]
+      };
+    }
+  }
+  output.setContent(JSON.stringify(result));
+  return output;
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 5 -->
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center font-bold text-sm shrink-0 shadow-lg">5</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-green-400">Deploy sebagai Web App</h4>
+                                <p class="text-sm text-slate-400 mt-1">Ikuti langkah berikut untuk deploy:</p>
+                                <ol class="mt-3 space-y-2 text-sm text-slate-300">
+                                    <li class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-xs shrink-0">a</span>
+                                        <span>Klik tombol <code class="bg-black/30 px-2 py-0.5 rounded">Deploy</code> di pojok kanan atas</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-xs shrink-0">b</span>
+                                        <span>Pilih <code class="bg-black/30 px-2 py-0.5 rounded">New deployment</code></span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-xs shrink-0">c</span>
+                                        <span>Klik ikon gear ⚙️ → pilih <code class="bg-black/30 px-2 py-0.5 rounded">Web app</code></span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-xs shrink-0">d</span>
+                                        <span>Set "Execute as" = <code class="bg-black/30 px-2 py-0.5 rounded">Me</code></span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-xs shrink-0">e</span>
+                                        <span>Set "Who has access" = <code class="bg-black/30 px-2 py-0.5 rounded">Anyone</code></span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-xs shrink-0">f</span>
+                                        <span>Klik <code class="bg-black/30 px-2 py-0.5 rounded">Deploy</code> dan copy URL yang diberikan</span>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 6 -->
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center font-bold text-sm shrink-0 shadow-lg">6</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-blue-400">Konfigurasi URL di Aplikasi</h4>
+                                <p class="text-sm text-slate-400 mt-1">Masukkan URL Web App yang sudah di-deploy:</p>
+                                <div class="mt-3 space-y-3">
+                                    <div>
+                                        <label class="text-xs text-slate-500 mb-1 block">Google Apps Script URL</label>
+                                        <div class="flex gap-2">
+                                            <input type="text" id="googleScriptUrl" 
+                                                placeholder="https://script.google.com/macros/s/xxxxx/exec"
+                                                class="flex-1 px-4 py-3 bg-black/30 border border-green-500/20 rounded-xl text-sm placeholder-slate-500 outline-none focus:border-green-500/50 transition font-mono text-xs"
+                                                value="https://script.google.com/macros/s/AKfycbxJMUDJuYRnl1fVDiMeWP7NRuGQ-PSKrEubGRCaTguRs74isrVGVyJxJRY3OAnkUKCGPQ/exec">
+                                            <button onclick="saveScriptUrl()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-xl text-sm font-medium transition flex items-center gap-2">
+                                                <i class="fas fa-save"></i>
+                                                Simpan
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button onclick="testConnection()" class="w-full py-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2">
+                                        <i class="fas fa-plug"></i>
+                                        Test Koneksi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Current Config -->
+                        <div class="p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fas fa-check-circle text-green-400"></i>
+                                <span class="text-sm font-medium text-green-400">URL Saat Ini</span>
+                            </div>
+                            <code id="currentUrl" class="text-xs text-slate-400 break-all block">https://script.google.com/macros/s/AKfycbxJMUDJuYRnl1fVDiMeWP7NRuGQ-PSKrEubGRCaTguRs74isrVGVyJxJRY3OAnkUKCGPQ/exec</code>
+                        </div>
+                        
+                        <!-- Help Section -->
+                        <div class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-exclamation-triangle text-yellow-400 mt-0.5"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-yellow-400">Penting!</p>
+                                    <ul class="text-xs text-slate-400 mt-2 space-y-1">
+                                        <li>• Pastikan spreadsheet memiliki header di baris pertama</li>
+                                        <li>• Jika ada perubahan kode, deploy ulang dengan versi baru</li>
+                                        <li>• URL akan berubah setiap kali deploy baru, pastikan update di sini</li>
+                                        <li>• Jika error "Authorization required", klik "Review Permissions" saat deploy</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+    
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 z-50 hidden">
+        <div class="toast px-4 py-3 bg-slate-800 border border-green-500/30 rounded-xl shadow-2xl flex items-center gap-3">
+            <i class="fas fa-check-circle text-green-400" id="toastIcon"></i>
+            <span class="text-sm" id="toastMsg">Berhasil!</span>
+        </div>
+    </div>
+    
+    <script>
+        // Constants
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJMUDJuYRnl1fVDiMeWP7NRuGQ-PSKrEubGRCaTguRs74isrVGVyJxJRY3OAnkUKCGPQ/exec';
+        
+        const packages = [
+            { id: 1, name: '5 Mbps Basic', price: 50000, speed: '5 Mbps', devices: '1-3 Perangkat' },
+            { id: 2, name: '7 Mbps + TV', price: 80000, speed: '7 Mbps', devices: '1-3 Perangkat + TV' },
+            { id: 3, name: '10 Mbps Pro', price: 100000, speed: '10 Mbps', devices: '1-5 Perangkat' }
+        ];
+        
+        const devices = [
+            { name: 'TOTOLINK ASRAMA', ip: '192.168.10.3', port: '8080', username: 'asrama', type: 'client' },
+            { name: 'TP LINK ZAMA', ip: '192.168.10.4', port: '8080', username: 'zama', type: 'client' },
+            { name: 'TOTOLINK MENARA', ip: '192.168.10.5', port: '8080', username: 'menara', type: 'client' },
+            { name: 'TP LINK LEK ARIS', ip: '192.168.10.6', port: '8080', username: 'lekaris', type: 'client' },
+            { name: 'TP LINK DHE ZEN', ip: '192.168.10.7', port: '8080', username: 'dhezen', type: 'client' },
+            { name: 'RUIJIE RG-EW1200G PRO', ip: '192.168.30.2', port: '80', type: 'admin' },
+            { name: 'MIKROTIK', ip: '192.168.20.1', port: '', type: 'admin' },
+            { name: 'ONT BIZNET', ip: '192.168.18.1', port: '', type: 'admin' }
+        ];
+        
+        let clientsData = JSON.parse(localStorage.getItem('emonitor_clients')) || {
+            'asrama': { name: 'TOTOLINK ASRAMA', package: 1, lastPay: '2024-01-15', status: 'checking', ip: '192.168.10.3', port: '8080' },
+            'zama': { name: 'TP LINK ZAMA', package: 1, lastPay: '2024-01-15', status: 'checking', ip: '192.168.10.4', port: '8080' },
+            'menara': { name: 'TOTOLINK MENARA', package: 2, lastPay: '2024-01-15', status: 'checking', ip: '192.168.10.5', port: '8080' },
+            'lekaris': { name: 'TP LINK LEK ARIS', package: 1, lastPay: '2024-01-15', status: 'checking', ip: '192.168.10.6', port: '8080' },
+            'dhezen': { name: 'TP LINK DHE ZEN', package: 3, lastPay: '2024-01-15', status: 'checking', ip: '192.168.10.7', port: '8080' }
+        };
+        
+        let isSyncing = false;
+        let lastSyncTime = null;
+        
+        // Theme Management
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            applyTheme(theme);
+            
+            document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.theme === theme) btn.classList.add('active');
+            });
+        }
+        
+        function applyTheme(theme) {
+            if (theme === 'auto') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+        }
+        
+        function loadTheme() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            applyTheme(theme);
+            document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.theme === theme) btn.classList.add('active');
+            });
+        }
+        
+        // Auth Check
+        function checkAuth() {
+            const session = localStorage.getItem('emonitor_session');
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            const data = JSON.parse(session);
+            if (data.role !== 'admin') {
+                window.location.href = 'client.html';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('emonitor_session');
+            window.location.href = 'index.html';
+        }
+        
+        // Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('mobileOverlay').classList.toggle('hidden');
+        }
+        
+        // Views
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            document.getElementById('nav-' + viewId).classList.add('active');
+            
+            const titles = {
+                'dashboard': 'Dashboard',
+                'billing': 'Kelola Tagihan',
+                'notifications': 'Notifikasi Telegram',
+                'mikhmon': 'Mikhmon Online',
+                'adguard': 'AdGuard Home',
+                'monitor': 'Monitor Server',
+                'setup': 'Setup Google Sheet'
+            };
+            document.getElementById('pageTitle').textContent = titles[viewId] || 'Dashboard';
+            
+            if (window.innerWidth < 768) {
+                toggleSidebar();
+            }
+        }
+        
+        // Render Device Grid
+        function renderDeviceGrid() {
+            const grid = document.getElementById('deviceGrid');
+            grid.innerHTML = devices.map((device, index) => {
+                const url = device.port ? `http://${device.ip}:${device.port}` : `http://${device.ip}`;
+                const colors = ['from-orange-500 to-red-500', 'from-pink-500 to-purple-500', 'from-blue-500 to-cyan-500', 'from-green-500 to-emerald-500'];
+                const color = colors[index % colors.length];
+                
+                return `
+                    <a href="${url}" target="_blank" class="device-card card rounded-xl p-4 hover:border-orange-500/50 transition" style="animation-delay: ${index * 0.1}s">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center">
+                                <i class="fas fa-wifi text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-sm truncate">${device.name}</h4>
+                                <p class="text-xs text-slate-500 font-mono">${device.ip}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs px-2 py-1 rounded-full bg-white/10">${device.type === 'client' ? 'Pelanggan' : 'Admin'}</span>
+                            <span class="text-xs text-green-400 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-400 pulse-dot"></span>
+                                Online
+                            </span>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+        
+        // Render Billing Table
+        function renderBillingTable() {
+            const tbody = document.getElementById('billingTable');
+            let total = 0;
+            let expiringCount = 0;
+            let onlineCount = 0;
+            
+            tbody.innerHTML = Object.entries(clientsData).map(([username, data], index) => {
+                const pkg = packages.find(p => p.id === data.package) || packages[0];
+                const expired = calculateExpiry(data.lastPay);
+                const daysLeft = Math.ceil((new Date(expired) - new Date()) / (1000 * 60 * 60 * 24));
+                const isExpired = daysLeft <= 0;
+                const isOnline = data.status === 'online';
+                const isChecking = data.status === 'checking';
+                
+                if (isOnline) onlineCount++;
+                if (daysLeft <= 7 && daysLeft > 0) expiringCount++;
+                total += pkg.price;
+                
+                let connectionStatusHtml = '';
+                if (isChecking) {
+                    connectionStatusHtml = `
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-spinner fa-spin text-yellow-400"></i>
+                            <span class="text-xs text-yellow-400">Checking...</span>
+                        </div>
+                    `;
+                } else {
+                    connectionStatusHtml = `
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full ${isOnline ? 'bg-green-400 pulse-dot' : 'bg-red-400'}"></span>
+                            <span class="text-xs ${isOnline ? 'text-green-400' : 'text-red-400'}">${isOnline ? 'Online' : 'Offline'}</span>
+                            ${data.latency ? `<span class="text-[10px] text-slate-500">${data.latency}ms</span>` : ''}
+                        </div>
+                    `;
+                }
+                
+                const billingStatusHtml = isExpired 
+                    ? '<span class="px-2 py-1 rounded text-xs bg-red-500/20 text-red-400"><i class="fas fa-times-circle mr-1"></i>Expired</span>'
+                    : daysLeft <= 7 
+                        ? `<span class="px-2 py-1 rounded text-xs bg-yellow-500/20 text-yellow-400"><i class="fas fa-exclamation-triangle mr-1"></i>Segera Expired</span>`
+                        : '<span class="px-2 py-1 rounded text-xs bg-green-500/20 text-green-400"><i class="fas fa-check-circle mr-1"></i>Aktif</span>';
+                
+                return `
+                    <tr class="table-row border-b border-white/5 hover:bg-white/5 transition" style="animation-delay: ${index * 0.1}s">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
+                                    <i class="fas fa-user text-green-400"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">${data.name}</div>
+                                    <div class="text-xs text-slate-500">@${username}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="font-mono text-xs text-slate-400">${data.ip || '-'}</div>
+                            <div class="text-[10px] text-slate-500">Port: ${data.port || '-'}</div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <select onchange="updatePackage('${username}', this.value)" class="bg-black/30 border border-green-500/20 rounded-lg px-2 py-1 text-xs cursor-pointer hover:border-green-500/50 transition">
+                                ${packages.map(p => `<option value="${p.id}" ${p.id === data.package ? 'selected' : ''}>${p.name}</option>`).join('')}
+                            </select>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="font-semibold text-green-400">Rp ${pkg.price.toLocaleString()}</div>
+                            <div class="text-[10px] text-slate-500">${pkg.speed}</div>
+                        </td>
+                        <td class="px-4 py-3">
+                            ${connectionStatusHtml}
+                            <button onclick="checkDeviceStatus('${username}')" data-status-btn="${username}" class="mt-1 text-[10px] text-green-400 hover:underline flex items-center gap-1">
+                                <i class="fas fa-sync-alt"></i> Ping
+                            </button>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex flex-col gap-1">
+                                <input type="date" value="${data.lastPay}" onchange="updateLastPay('${username}', this.value)" 
+                                    class="bg-black/30 border border-green-500/20 rounded-lg px-2 py-1 text-xs cursor-pointer hover:border-green-500/50 transition">
+                                <span class="text-[10px] text-slate-500">Klik untuk ubah</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs font-medium ${isExpired ? 'text-red-400' : daysLeft <= 7 ? 'text-yellow-400' : 'text-green-400'}">
+                                    ${expired}
+                                </span>
+                                <span class="text-[10px] ${isExpired ? 'text-red-400' : daysLeft <= 7 ? 'text-yellow-400' : 'text-slate-500'}">
+                                    ${isExpired ? 'Sudah expired' : daysLeft + ' hari lagi'}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            ${billingStatusHtml}
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-1">
+                                <button onclick="syncToSheet('${username}')" class="p-2 hover:bg-green-500/20 rounded-lg transition group" title="Sync ke Google Sheet">
+                                    <i class="fas fa-cloud-upload-alt text-green-400 group-hover:scale-110 transition"></i>
+                                </button>
+                                <button onclick="viewClientDetail('${username}')" class="p-2 hover:bg-blue-500/20 rounded-lg transition group" title="Lihat Detail">
+                                    <i class="fas fa-eye text-blue-400 group-hover:scale-110 transition"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('totalRevenue').textContent = 'Rp ' + (total / 1000) + 'k';
+            document.getElementById('notifBadge').textContent = expiringCount;
+            document.getElementById('totalClients').textContent = Object.keys(clientsData).length + ' pelanggan';
+            
+            // Update online count in stats
+            const onlineCountEl = document.getElementById('onlineCount');
+            if (onlineCountEl) {
+                onlineCountEl.textContent = onlineCount + '/' + Object.keys(clientsData).length;
+            }
+            
+            renderExpiringList();
+        }
+        
+        // View client detail
+        function viewClientDetail(username) {
+            const data = clientsData[username];
+            const pkg = packages.find(p => p.id === data.package) || packages[0];
+            const expired = calculateExpiry(data.lastPay);
+            const daysLeft = Math.ceil((new Date(expired) - new Date()) / (1000 * 60 * 60 * 24));
+            
+            const detail = `
+📋 DETAIL PELANGGAN
+
+👤 Nama: ${data.name}
+🔑 Username: ${username}
+🌐 IP Address: ${data.ip}:${data.port}
+
+📦 Paket: ${pkg.name}
+💰 Harga: Rp ${pkg.price.toLocaleString()}
+⚡ Kecepatan: ${pkg.speed}
+📱 Perangkat: ${pkg.devices}
+
+📅 Tgl Bayar Terakhir: ${data.lastPay}
+⏰ Expired: ${expired}
+📊 Sisa: ${daysLeft > 0 ? daysLeft + ' hari' : 'EXPIRED'}
+🔌 Status Koneksi: ${data.status === 'online' ? 'Online ✅' : 'Offline ❌'}
+            `;
+            
+            alert(detail);
+        }
+        
+        // Render Expiring List
+        function renderExpiringList() {
+            const list = document.getElementById('expiringList');
+            const expiring = [];
+            
+            Object.entries(clientsData).forEach(([username, data]) => {
+                const expired = calculateExpiry(data.lastPay);
+                const daysLeft = Math.ceil((new Date(expired) - new Date()) / (1000 * 60 * 60 * 24));
+                if (daysLeft <= 7 && daysLeft > 0) {
+                    expiring.push({ username, ...data, daysLeft });
+                }
+            });
+            
+            if (expiring.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-8 text-slate-500">
+                        <i class="fas fa-check-circle text-4xl text-green-500 mb-3"></i>
+                        <p>Semua pelanggan aktif!</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = expiring.map(client => `
+                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border ${client.daysLeft <= 3 ? 'border-red-500/30' : 'border-yellow-500/30'}">
+                        <div>
+                            <p class="font-medium">${client.name}</p>
+                            <p class="text-xs text-slate-500">Expired dalam ${client.daysLeft} hari</p>
+                        </div>
+                        <button onclick="sendTelegramReminder('${client.username}')" class="btn-animated px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs transition">
+                            <i class="fab fa-telegram mr-1"></i> Kirim
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // Render Router Status
+        function renderRouterStatus() {
+            const list = document.getElementById('routerStatusList');
+            list.innerHTML = devices.filter(d => d.type === 'client').slice(0, 5).map(device => `
+                <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                    <span class="text-sm text-slate-400">${device.name}</span>
+                    <span class="text-green-400 text-sm">● ${device.ip}</span>
+                </div>
+            `).join('');
+        }
+        
+        // Calculate Expiry
+        function calculateExpiry(lastPay) {
+            const date = new Date(lastPay);
+            date.setDate(date.getDate() + 30);
+            return date.toISOString().split('T')[0];
+        }
+        
+        // Update Functions
+        function updatePackage(username, packageId) {
+            clientsData[username].package = parseInt(packageId);
+            saveClientsData();
+            renderBillingTable();
+            
+            // Auto sync to Google Sheet immediately
+            showToast('Menyimpan ke Google Sheet...');
+            syncToSheet(username).then(() => {
+                showToast('Paket berhasil diupdate & disinkronkan!');
+            });
+        }
+        
+        function updateLastPay(username, date) {
+            clientsData[username].lastPay = date;
+            saveClientsData();
+            renderBillingTable();
+            
+            // Auto sync to Google Sheet immediately
+            showToast('Menyimpan ke Google Sheet...');
+            syncToSheet(username).then(() => {
+                showToast('Tanggal bayar berhasil diupdate & disinkronkan!');
+            });
+        }
+        
+        function saveClientsData() {
+            localStorage.setItem('emonitor_clients', JSON.stringify(clientsData));
+        }
+        
+        // Ping device to check status
+        async function pingDevice(ip, port) {
+            return new Promise((resolve) => {
+                const timeout = 5000;
+                const startTime = Date.now();
+                
+                // Method 1: Try using Image load
+                const img = new Image();
+                let resolved = false;
+                
+                const timer = setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve({ online: false, latency: null });
+                    }
+                }, timeout);
+                
+                img.onload = img.onerror = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        clearTimeout(timer);
+                        const latency = Date.now() - startTime;
+                        // If we get any response (even error), device is reachable
+                        resolve({ online: latency < timeout, latency: latency });
+                    }
+                };
+                
+                const url = port ? `http://${ip}:${port}/favicon.ico?t=${Date.now()}` : `http://${ip}/favicon.ico?t=${Date.now()}`;
+                img.src = url;
+            });
+        }
+        
+        // Check single device status
+        async function checkDeviceStatus(username) {
+            const data = clientsData[username];
+            if (!data.ip) return;
+            
+            const btn = document.querySelector(`[data-status-btn="${username}"]`);
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+            }
+            
+            const result = await pingDevice(data.ip, data.port);
+            clientsData[username].status = result.online ? 'online' : 'offline';
+            clientsData[username].lastCheck = new Date().toISOString();
+            clientsData[username].latency = result.latency;
+            
+            saveClientsData();
+            renderBillingTable();
+        }
+        
+        // Check All Status
+        async function checkAllStatus() {
+            showToast('Mengecek status semua perangkat...');
+            
+            const checkPromises = Object.keys(clientsData).map(async (username) => {
+                const data = clientsData[username];
+                if (data.ip) {
+                    const result = await pingDevice(data.ip, data.port);
+                    clientsData[username].status = result.online ? 'online' : 'offline';
+                    clientsData[username].lastCheck = new Date().toISOString();
+                    clientsData[username].latency = result.latency;
+                }
+            });
+            
+            await Promise.all(checkPromises);
+            
+            saveClientsData();
+            renderBillingTable();
+            showToast('Status semua perangkat diperbarui!');
+        }
+        
+        // Show sync indicator
+        function showSyncIndicator(show) {
+            let indicator = document.getElementById('syncIndicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'syncIndicator';
+                indicator.className = 'fixed top-16 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-green-600/90 rounded-lg text-xs font-medium shadow-lg';
+                indicator.innerHTML = '<i class="fas fa-sync fa-spin"></i> Syncing...';
+                document.body.appendChild(indicator);
+            }
+            indicator.style.display = show ? 'flex' : 'none';
+        }
+        
+        // Fetch data from Google Sheet
+        async function fetchFromSheet() {
+            try {
+                showSyncIndicator(true);
+                updateSyncStatus('syncing');
+                
+                const url = getScriptUrl();
+                const response = await fetch(`${url}?action=get&t=${Date.now()}`);
+                const data = await response.json();
+                
+                if (data && typeof data === 'object') {
+                    // Merge with existing data
+                    for (const [username, sheetData] of Object.entries(data)) {
+                        if (clientsData[username]) {
+                            // Update from sheet but keep local status and connection info
+                            const localStatus = clientsData[username].status;
+                            const localIp = clientsData[username].ip;
+                            const localPort = clientsData[username].port;
+                            const localLatency = clientsData[username].latency;
+                            
+                            clientsData[username] = {
+                                ...clientsData[username],
+                                name: sheetData.name || clientsData[username].name,
+                                package: parseInt(sheetData.packageId) || clientsData[username].package,
+                                lastPay: sheetData.lastPay || clientsData[username].lastPay,
+                                status: localStatus,
+                                ip: localIp,
+                                port: localPort,
+                                latency: localLatency
+                            };
+                        }
+                    }
+                    saveClientsData();
+                    renderBillingTable();
+                    lastSyncTime = new Date();
+                    updateSyncStatus('connected');
+                    updateLastSyncText();
+                    showToast('Data berhasil disinkronkan dari Google Sheet!');
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                updateSyncStatus('error');
+                showToast('Gagal mengambil data dari Sheet', 'error');
+            } finally {
+                showSyncIndicator(false);
+            }
+        }
+        
+        // Update last sync text
+        function updateLastSyncText() {
+            const el = document.getElementById('lastSyncText');
+            if (el && lastSyncTime) {
+                el.textContent = 'Terakhir sync: ' + lastSyncTime.toLocaleTimeString('id-ID');
+                el.className = 'text-green-400';
+            }
+        }
+        
+        // Sync to Google Sheet
+        async function syncToSheet(username) {
+            const data = clientsData[username];
+            const pkg = packages.find(p => p.id === data.package);
+            const expired = calculateExpiry(data.lastPay);
+            
+            showSyncIndicator(true);
+            updateSyncStatus('syncing');
+            
+            const params = new URLSearchParams({
+                action: 'update',
+                username: username,
+                name: data.name,
+                packageId: data.package.toString(),
+                packageName: pkg.name,
+                price: pkg.price.toString(),
+                lastPay: data.lastPay,
+                expired: expired,
+                status: data.status,
+                ip: data.ip || '',
+                port: data.port || ''
+            });
+            
+            const scriptUrl = getScriptUrl();
+            const url = `${scriptUrl}?${params.toString()}`;
+            
+            try {
+                await fetch(url, { mode: 'no-cors' });
+                lastSyncTime = new Date();
+                updateSyncStatus('connected');
+                updateLastSyncText();
+                return true;
+            } catch (err) {
+                console.error('Sync error:', err);
+                updateSyncStatus('error');
+                showToast('Gagal sync data!', 'error');
+                return false;
+            } finally {
+                showSyncIndicator(false);
+            }
+        }
+        
+        // Update sync status indicator
+        function updateSyncStatus(status) {
+            const statusEl = document.getElementById('syncStatus');
+            if (!statusEl) return;
+            
+            switch(status) {
+                case 'syncing':
+                    statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyinkronkan...';
+                    statusEl.className = 'font-medium text-yellow-400';
+                    break;
+                case 'connected':
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Terhubung';
+                    statusEl.className = 'font-medium text-green-400';
+                    break;
+                case 'error':
+                    statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error';
+                    statusEl.className = 'font-medium text-red-400';
+                    break;
+            }
+        }
+        
+        async function syncAllToSheet() {
+            showSyncIndicator(true);
+            let successCount = 0;
+            const scriptUrl = getScriptUrl();
+            
+            for (const username of Object.keys(clientsData)) {
+                try {
+                    const data = clientsData[username];
+                    const pkg = packages.find(p => p.id === data.package);
+                    const expired = calculateExpiry(data.lastPay);
+                    
+                    const params = new URLSearchParams({
+                        action: 'update',
+                        username: username,
+                        name: data.name,
+                        packageId: data.package.toString(),
+                        packageName: pkg.name,
+                        price: pkg.price.toString(),
+                        lastPay: data.lastPay,
+                        expired: expired,
+                        status: data.status,
+                        ip: data.ip || '',
+                        port: data.port || ''
+                    });
+                    
+                    await fetch(`${scriptUrl}?${params.toString()}`, { mode: 'no-cors' });
+                    successCount++;
+                } catch (err) {
+                    console.error('Sync error for', username, err);
+                }
+            }
+            
+            showSyncIndicator(false);
+            lastSyncTime = new Date();
+            showToast(`${successCount} data berhasil di-sync ke Google Sheet!`);
+        }
+        
+        // Update sync text periodically
+        setInterval(updateLastSyncText, 30000);
+        
+        // Telegram Functions
+        function saveTelegramConfig() {
+            const token = document.getElementById('telegramToken').value;
+            const chatId = document.getElementById('telegramChatId').value;
+            localStorage.setItem('telegram_token', token);
+            localStorage.setItem('telegram_chatid', chatId);
+            showToast('Konfigurasi Telegram disimpan!');
+        }
+        
+        function loadTelegramConfig() {
+            document.getElementById('telegramToken').value = localStorage.getItem('telegram_token') || '';
+            document.getElementById('telegramChatId').value = localStorage.getItem('telegram_chatid') || '';
+        }
+        
+        async function testTelegram() {
+            const token = localStorage.getItem('telegram_token');
+            const chatId = localStorage.getItem('telegram_chatid');
+            
+            if (!token || !chatId) {
+                showToast('Lengkapi konfigurasi Telegram!', 'error');
+                return;
+            }
+            
+            try {
+                await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: '🔔 *E-MONITOR SERVER*\n\nTest notifikasi berhasil!',
+                        parse_mode: 'Markdown'
+                    })
+                });
+                showToast('Pesan test berhasil dikirim!');
+            } catch (err) {
+                showToast('Gagal mengirim pesan!', 'error');
+            }
+        }
+        
+        async function sendTelegramReminder(username) {
+            const data = clientsData[username];
+            const expired = calculateExpiry(data.lastPay);
+            const daysLeft = Math.ceil((new Date(expired) - new Date()) / (1000 * 60 * 60 * 24));
+            
+            const token = localStorage.getItem('telegram_token');
+            const chatId = localStorage.getItem('telegram_chatid');
+            
+            if (!token || !chatId) {
+                showToast('Konfigurasi Telegram belum lengkap!', 'error');
+                return;
+            }
+            
+            const message = `⚠️ *REMINDER PEMBAYARAN*\n\n👤 Pelanggan: ${data.name}\n📅 Expired: ${expired}\n⏰ Sisa: ${daysLeft} hari\n\nSegera lakukan pembayaran!`;
+            
+            try {
+                await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+                showToast('Reminder berhasil dikirim!');
+            } catch (err) {
+                showToast('Gagal mengirim reminder!', 'error');
+            }
+        }
+        
+        // Copy Script
+        function copyScript() {
+            const code = document.getElementById('scriptCode').textContent;
+            navigator.clipboard.writeText(code);
+            showToast('Kode script berhasil dicopy!');
+        }
+        
+        // Copy Header
+        function copyHeader() {
+            const header = 'Username\tName\tPackageId\tPackageName\tPrice\tLastPay\tExpired\tStatus\tIP\tPort';
+            navigator.clipboard.writeText(header);
+            showToast('Header berhasil dicopy! Paste di Google Sheet.');
+        }
+        
+        // Save Script URL
+        function saveScriptUrl() {
+            const url = document.getElementById('googleScriptUrl').value.trim();
+            if (!url) {
+                showToast('URL tidak boleh kosong!', 'error');
+                return;
+            }
+            if (!url.startsWith('https://script.google.com/')) {
+                showToast('URL tidak valid!', 'error');
+                return;
+            }
+            localStorage.setItem('google_script_url', url);
+            document.getElementById('currentUrl').textContent = url;
+            showToast('URL berhasil disimpan!');
+        }
+        
+        // Load saved URL
+        function loadScriptUrl() {
+            const savedUrl = localStorage.getItem('google_script_url');
+            if (savedUrl) {
+                document.getElementById('googleScriptUrl').value = savedUrl;
+                document.getElementById('currentUrl').textContent = savedUrl;
+            }
+        }
+        
+        // Get current script URL
+        function getScriptUrl() {
+            return localStorage.getItem('google_script_url') || GOOGLE_SCRIPT_URL;
+        }
+        
+        // Test Connection
+        async function testConnection() {
+            const url = document.getElementById('googleScriptUrl').value.trim() || getScriptUrl();
+            showToast('Menghubungkan ke server...');
+            
+            try {
+                const response = await fetch(`${url}?action=get&t=${Date.now()}`);
+                const data = await response.json();
+                
+                if (data && typeof data === 'object') {
+                    const count = Object.keys(data).length;
+                    showToast(`Koneksi berhasil! ${count} data ditemukan.`);
+                } else {
+                    showToast('Koneksi berhasil! (Data kosong)');
+                }
+            } catch (err) {
+                console.error('Connection test failed:', err);
+                showToast('Koneksi gagal! Periksa URL dan izin.', 'error');
+            }
+        }
+        
+        // Override GOOGLE_SCRIPT_URL getter
+        Object.defineProperty(window, 'ACTIVE_SCRIPT_URL', {
+            get: function() {
+                return localStorage.getItem('google_script_url') || GOOGLE_SCRIPT_URL;
+            }
+        });
+        
+        // Toast
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const msgEl = document.getElementById('toastMsg');
+            
+            msgEl.textContent = msg;
+            icon.className = type === 'error' ? 'fas fa-times-circle text-red-400' : 'fas fa-check-circle text-green-400';
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+        
+        // Time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
+        }
+        
+        // Init
+        checkAuth();
+        loadTheme();
+        loadTelegramConfig();
+        loadScriptUrl();
+        renderDeviceGrid();
+        renderBillingTable();
+        renderRouterStatus();
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Auto fetch from Google Sheet on load
+        setTimeout(() => {
+            fetchFromSheet();
+        }, 1000);
+        
+        // Auto check device status
+        setTimeout(checkAllStatus, 3000);
+        
+        // Periodic status check every 5 minutes
+        setInterval(checkAllStatus, 5 * 60 * 1000);
+        
+        // Periodic sync every 10 minutes
+        setInterval(fetchFromSheet, 10 * 60 * 1000);
+    </script>
+</body>
+</html>

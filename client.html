@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E-MONITOR SERVER - Client Dashboard</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        
+        /* Theme Variables */
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: rgba(30, 41, 59, 0.8);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(34, 197, 94, 0.2);
+            --accent: #22c55e;
+            --accent-secondary: #10b981;
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #e2e8f0;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-color: rgba(34, 197, 94, 0.3);
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: conic-gradient(from 0deg at 50% 50%, 
+                var(--bg-primary) 0deg, 
+                rgba(59, 130, 246, 0.1) 60deg,
+                var(--bg-primary) 120deg,
+                rgba(236, 72, 153, 0.1) 180deg,
+                var(--bg-primary) 240deg,
+                rgba(34, 197, 94, 0.1) 300deg,
+                var(--bg-primary) 360deg);
+            animation: rotateBg 40s linear infinite;
+        }
+        
+        @keyframes rotateBg {
+            to { transform: rotate(360deg); }
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.2;
+            animation: floatShape 25s ease-in-out infinite;
+        }
+        
+        .floating-shape:nth-child(1) {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            top: -15%;
+            right: -10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-shape:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #ec4899, #db2777);
+            bottom: -10%;
+            left: -10%;
+            animation-delay: -8s;
+        }
+        
+        .floating-shape:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            top: 50%;
+            left: 50%;
+            animation-delay: -16s;
+        }
+        
+        @keyframes floatShape {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.9); }
+            75% { transform: translate(40px, 40px) scale(1.05); }
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), transparent);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::before {
+            width: 100%;
+        }
+        
+        .nav-link:hover {
+            transform: translateX(5px);
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, transparent 100%);
+            border-left: 3px solid #3b82f6;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Animations */
+        .fade-up {
+            animation: fadeUp 0.6s ease-out backwards;
+        }
+        
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out backwards;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .scale-in {
+            animation: scaleIn 0.5s ease-out backwards;
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .bounce-in {
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards;
+        }
+        
+        @keyframes bounceIn {
+            from {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Welcome Banner Animation */
+        .welcome-banner {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            animation: shine 4s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: progressShine 2s infinite;
+        }
+        
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Button Animations */
+        .btn-animated {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-animated::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-animated:hover::before {
+            left: 100%;
+        }
+        
+        .btn-animated:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Pulse Animation */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pulse-dot {
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #ec4899 50%, #22c55e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: relative;
+            width: 100px;
+            height: 36px;
+            background: var(--bg-secondary);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+        
+        .theme-toggle-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .theme-toggle-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #ec4899);
+            color: white;
+        }
+        
+        /* Copy Button Effect */
+        .copy-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .copy-btn.copied {
+            color: #22c55e !important;
+        }
+        
+        /* Speedtest Card Animation */
+        .speedtest-card {
+            transition: all 0.3s ease;
+        }
+        
+        .speedtest-card:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Toast */
+        .toast {
+            animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.7s forwards;
+        }
+        
+        @keyframes toastIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes toastOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        
+        /* Mobile Sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        
+        /* Ripple Effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 0.5s;
+        }
+        
+        .ripple:active::after {
+            transform: scale(0, 0);
+            opacity: 1;
+            transition: 0s;
+        }
+        
+        /* Status Card Hover */
+        .status-card {
+            transition: all 0.3s ease;
+        }
+        
+        .status-card:hover .status-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .status-icon {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-shapes">
+            <div class="floating-shape"></div>
+            <div class="floating-shape"></div>
+            <div class="floating-shape"></div>
+        </div>
+    </div>
+    
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 z-50 transition-transform md:translate-x-0">
+        <div class="h-16 flex items-center justify-between px-4 border-b border-blue-500/20">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                    <img src="https://images.seeklogo.com/logo-png/27/1/rollbar-logo-png_seeklogo-273862.png" alt="Logo" class="w-6 h-6 object-contain">
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm">E-MONITOR</h1>
+                    <p class="text-[10px] text-blue-400 uppercase tracking-wider">Client Portal</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-3 space-y-1 overflow-y-auto" style="height: calc(100vh - 180px);">
+            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">Menu Utama</p>
+            
+            <a href="#" onclick="showView('dashboard')" class="nav-link active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-dashboard">
+                <i class="fas fa-home w-5 text-blue-400"></i>
+                <span>Dashboard</span>
+            </a>
+            
+            <a href="#" onclick="showView('billing')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-billing">
+                <i class="fas fa-file-invoice-dollar w-5 text-green-400"></i>
+                <span>Langganan & Tagihan</span>
+            </a>
+            
+            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2 mt-4">Monitoring</p>
+            
+            <a href="#" onclick="showView('monitor-dns')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-monitor-dns">
+                <i class="fas fa-globe w-5 text-indigo-400"></i>
+                <span>DNS Server</span>
+            </a>
+            
+            <a href="#" onclick="showView('monitor-ap')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-monitor-ap">
+                <i class="fas fa-wifi w-5 text-purple-400"></i>
+                <span>Router / AP</span>
+            </a>
+            
+            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2 mt-4">Tools</p>
+            
+            <a href="#" onclick="showView('speedtest')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ripple" id="nav-speedtest">
+                <i class="fas fa-tachometer-alt w-5 text-cyan-400"></i>
+                <span>Speedtest</span>
+            </a>
+        </nav>
+        
+        <!-- Theme Toggle & Logout -->
+        <div class="absolute bottom-0 left-0 right-0 p-3 border-t border-blue-500/10 space-y-3">
+            <div class="flex items-center justify-between px-2">
+                <span class="text-xs text-slate-500">Tema</span>
+                <div class="theme-toggle" id="themeToggle">
+                    <button class="theme-toggle-btn active" data-theme="dark" onclick="setTheme('dark')">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="theme-toggle-btn" data-theme="light" onclick="setTheme('light')">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    <button class="theme-toggle-btn" data-theme="auto" onclick="setTheme('auto')">
+                        <i class="fas fa-circle-half-stroke"></i>
+                    </button>
+                </div>
+            </div>
+            <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium transition ripple">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="md:ml-64 min-h-screen">
+        <!-- Header -->
+        <header class="sticky top-0 z-30 bg-opacity-80 backdrop-blur-lg border-b border-blue-500/10 px-4 h-14 flex items-center justify-between" style="background: var(--bg-card);">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <h2 class="text-base font-semibold" id="pageTitle">Dashboard</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500" id="currentTime"></span>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-sm text-white" id="userAvatar">U</div>
+            </div>
+        </header>
+        
+        <div class="p-4 md:p-6">
+            
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="view">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner card rounded-2xl p-6 mb-6 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 border-blue-500/20 fade-up">
+                    <div class="relative z-10">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-2">
+                            Selamat Datang, <span class="gradient-text" id="welcomeName">User</span>!
+                        </h2>
+                        <p class="text-slate-400 text-sm mb-4">Kelola langganan internet Anda dengan mudah.</p>
+                        <a id="manageRouterBtn" href="#" target="_blank" class="btn-animated inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl font-medium text-sm transition">
+                            <i class="fas fa-cog"></i>
+                            Kelola Router
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Status Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="status-card card rounded-2xl p-5 fade-up" style="animation-delay: 0.1s">
+                        <div class="flex items-center gap-4">
+                            <div class="status-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                                <i class="fas fa-check-circle text-xl text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 uppercase">Status</p>
+                                <p class="text-xl font-bold text-green-400" id="statusText">Active</p>
+                                <p class="text-xs text-slate-500" id="statusSubtext">Berakhir dalam 30 hari</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-card card rounded-2xl p-5 fade-up" style="animation-delay: 0.2s">
+                        <div class="flex items-center gap-4">
+                            <div class="status-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                                <i class="fas fa-money-bill-wave text-xl text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 uppercase">Tagihan</p>
+                                <p class="text-xl font-bold" id="billAmount">Rp 50.000</p>
+                                <p class="text-xs text-slate-500">Per bulan</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-card card rounded-2xl p-5 fade-up" style="animation-delay: 0.3s">
+                        <div class="flex items-center gap-4">
+                            <div class="status-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                                <i class="fas fa-calendar-alt text-xl text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 uppercase">Jatuh Tempo</p>
+                                <p class="text-lg font-bold" id="expiryDate">-</p>
+                                <p class="text-xs text-slate-500" id="lastPayDate">Terakhir: -</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Package Info -->
+                <div class="card rounded-2xl p-5 mb-6 scale-in" style="animation-delay: 0.4s">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                            <i class="fas fa-box text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400">Paket Anda</p>
+                            <p class="font-bold gradient-text" id="packageName">-</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="text-center p-3 bg-white/5 rounded-xl">
+                            <i class="fas fa-tachometer-alt text-cyan-400 mb-2"></i>
+                            <p class="text-xs text-slate-400">Speed</p>
+                            <p class="font-bold text-sm" id="packageSpeed">-</p>
+                        </div>
+                        <div class="text-center p-3 bg-white/5 rounded-xl">
+                            <i class="fas fa-laptop text-purple-400 mb-2"></i>
+                            <p class="text-xs text-slate-400">Devices</p>
+                            <p class="font-bold text-sm" id="packageDevices">-</p>
+                        </div>
+                        <div class="text-center p-3 bg-white/5 rounded-xl">
+                            <i class="fas fa-tag text-green-400 mb-2"></i>
+                            <p class="text-xs text-slate-400">Harga</p>
+                            <p class="font-bold text-sm" id="packagePrice">-</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress -->
+                <div class="card rounded-2xl p-5 slide-in" style="animation-delay: 0.5s">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-medium">Sisa Masa Aktif</span>
+                        <span class="text-sm text-green-400 font-medium" id="daysLeft">30 hari</span>
+                    </div>
+                    <div class="h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="progress-bar h-full rounded-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 transition-all duration-1000" id="progressBar" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <!-- Sync Status -->
+                <div class="card rounded-2xl p-4 mt-4 slide-in bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20" style="animation-delay: 0.6s">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+                                <i class="fas fa-cloud text-green-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">Status Sinkronisasi</p>
+                                <p class="text-xs text-slate-500" id="lastSyncClient">Memuat data...</p>
+                            </div>
+                        </div>
+                        <button onclick="fetchLatestData()" class="px-3 py-2 bg-green-500/20 hover:bg-green-500/30 rounded-lg transition text-sm">
+                            <i class="fas fa-sync-alt text-green-400"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Billing View -->
+            <div id="view-billing" class="view hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Subscription Details -->
+                    <div class="card rounded-2xl overflow-hidden fade-up">
+                        <div class="p-4 border-b border-blue-500/10 bg-gradient-to-r from-blue-600/20 to-purple-600/20">
+                            <h3 class="font-semibold flex items-center gap-2">
+                                <i class="fas fa-file-invoice text-blue-400"></i>
+                                Detail Langganan
+                            </h3>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="flex justify-between items-center py-3 border-b border-white/5">
+                                <span class="text-slate-400">Nama Paket</span>
+                                <span class="font-medium" id="subPackageName">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-white/5">
+                                <span class="text-slate-400">Kecepatan</span>
+                                <span class="font-medium" id="subSpeed">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-white/5">
+                                <span class="text-slate-400">Perangkat</span>
+                                <span class="font-medium" id="subDevices">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-white/5">
+                                <span class="text-slate-400">Harga</span>
+                                <span class="font-bold text-xl gradient-text" id="subPrice">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-white/5">
+                                <span class="text-slate-400">Terakhir Bayar</span>
+                                <span class="font-medium" id="subLastPay">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-white/5">
+                                <span class="text-slate-400">Jatuh Tempo</span>
+                                <span class="font-medium" id="subExpiry">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3">
+                                <span class="text-slate-400">Status</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400" id="subStatus">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Methods -->
+                    <div class="card rounded-2xl overflow-hidden fade-up" style="animation-delay: 0.1s">
+                        <div class="p-4 border-b border-blue-500/10 bg-gradient-to-r from-green-600/20 to-emerald-600/20">
+                            <h3 class="font-semibold flex items-center gap-2">
+                                <i class="fas fa-credit-card text-green-400"></i>
+                                Metode Pembayaran
+                            </h3>
+                        </div>
+                        <div class="p-5">
+                            <p class="text-xs text-slate-400 mb-2">Transfer ke rekening berikut:</p>
+                            <p class="text-sm font-semibold mb-4">📌 A/N: <span class="text-blue-400">Moh Alaikal Faz</span></p>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-yellow-500/20 hover:border-yellow-500/50 transition">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-xl bg-yellow-500 flex items-center justify-center font-bold text-xs text-black">JAGO</div>
+                                        <div>
+                                            <p class="font-mono font-medium">1096-6306-4825</p>
+                                            <p class="text-xs text-slate-500">Bank Jago</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="copyToClipboard('109663064825', this)" class="copy-btn p-2 text-slate-400 hover:text-blue-400 transition">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-blue-500/20 hover:border-blue-500/50 transition">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xs text-white">BRI</div>
+                                        <div>
+                                            <p class="font-mono font-medium">0038-0108-5146-501</p>
+                                            <p class="text-xs text-slate-500">Bank BRI</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="copyToClipboard('003801085146501', this)" class="copy-btn p-2 text-slate-400 hover:text-blue-400 transition">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-blue-900/20 hover:border-blue-900/50 transition">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-xl bg-blue-900 flex items-center justify-center font-bold text-xs text-yellow-400">MDR</div>
+                                        <div>
+                                            <p class="font-mono font-medium">1840-0101-7451-2</p>
+                                            <p class="text-xs text-slate-500">Bank Mandiri</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="copyToClipboard('1840010174512', this)" class="copy-btn p-2 text-slate-400 hover:text-blue-400 transition">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <a href="https://wa.me/6289631630639?text=Halo,%20saya%20sudah%20melakukan%20pembayaran%20internet." target="_blank" class="btn-animated mt-5 w-full flex items-center justify-center gap-2 px-5 py-4 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl font-semibold transition">
+                                <i class="fab fa-whatsapp text-xl"></i>
+                                Konfirmasi via WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Packages -->
+                <div class="card rounded-2xl p-5 mt-6 scale-in" style="animation-delay: 0.2s">
+                    <h4 class="font-semibold mb-4 flex items-center gap-2">
+                        <i class="fas fa-box-open text-blue-400"></i>
+                        Paket Tersedia
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-white/5 rounded-xl border border-cyan-500/20 hover:border-cyan-500/50 hover:scale-105 transition-all">
+                            <div class="flex items-center gap-2 mb-3">
+                                <i class="fas fa-wifi text-cyan-400"></i>
+                                <span class="font-bold">5 Mbps Basic</span>
+                            </div>
+                            <p class="text-2xl font-bold gradient-text mb-2">Rp 50.000</p>
+                            <p class="text-xs text-slate-400">1-3 Perangkat</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl border border-purple-500/20 hover:border-purple-500/50 hover:scale-105 transition-all">
+                            <div class="flex items-center gap-2 mb-3">
+                                <i class="fas fa-tv text-purple-400"></i>
+                                <span class="font-bold">7 Mbps + TV</span>
+                            </div>
+                            <p class="text-2xl font-bold gradient-text mb-2">Rp 80.000</p>
+                            <p class="text-xs text-slate-400">1-3 Perangkat + TV</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl border border-green-500/20 hover:border-green-500/50 hover:scale-105 transition-all">
+                            <div class="flex items-center gap-2 mb-3">
+                                <i class="fas fa-rocket text-green-400"></i>
+                                <span class="font-bold">10 Mbps Pro</span>
+                            </div>
+                            <p class="text-2xl font-bold gradient-text mb-2">Rp 100.000</p>
+                            <p class="text-xs text-slate-400">1-5 Perangkat</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Monitor DNS View -->
+            <div id="view-monitor-dns" class="view hidden">
+                <div class="card rounded-2xl p-6 fade-up">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center pulse">
+                            <i class="fas fa-globe text-2xl text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold">DNS Server Status</h3>
+                            <p class="text-slate-400 text-sm">Uptime Monitor</p>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-1 bg-green-500/20 rounded-full">
+                            <span class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></span>
+                            <span class="text-green-400 text-xs font-medium">Online</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition slide-in" style="animation-delay: 0.1s">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                                    <i class="fas fa-check text-green-400"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Google DNS</p>
+                                    <p class="text-xs text-slate-500">Primary</p>
+                                </div>
+                            </div>
+                            <span class="font-mono text-green-400">8.8.8.8</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition slide-in" style="animation-delay: 0.2s">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                                    <i class="fas fa-check text-green-400"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Cloudflare DNS</p>
+                                    <p class="text-xs text-slate-500">Secondary</p>
+                                </div>
+                            </div>
+                            <span class="font-mono text-green-400">1.1.1.1</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition slide-in" style="animation-delay: 0.3s">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                                    <i class="fas fa-shield-alt text-green-400"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">AdGuard DNS</p>
+                                    <p class="text-xs text-slate-500">Local</p>
+                                </div>
+                            </div>
+                            <span class="font-mono text-green-400">192.168.18.1</span>
+                        </div>
+                    </div>
+                    
+                    <a href="https://uptime.phaphaza.my.id/status/dnspublik" target="_blank" class="btn-animated w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl font-semibold transition">
+                        <i class="fas fa-external-link-alt"></i>
+                        Lihat Detail Status
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Monitor AP View -->
+            <div id="view-monitor-ap" class="view hidden">
+                <div class="card rounded-2xl p-6 fade-up">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center pulse">
+                            <i class="fas fa-wifi text-2xl text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold">Router / AP Status</h3>
+                            <p class="text-slate-400 text-sm">Uptime Monitor</p>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-1 bg-green-500/20 rounded-full">
+                            <span class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></span>
+                            <span class="text-green-400 text-xs font-medium">Online</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6" id="routerStatusList"></div>
+                    
+                    <a href="https://uptime.phaphaza.my.id/status/ap" target="_blank" class="btn-animated w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl font-semibold transition">
+                        <i class="fas fa-external-link-alt"></i>
+                        Lihat Detail Status
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Speedtest View -->
+            <div id="view-speedtest" class="view hidden">
+                <div class="card rounded-2xl p-6 mb-6 fade-up">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center pulse">
+                            <i class="fas fa-tachometer-alt text-2xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Internet Speedtest</h3>
+                            <p class="text-slate-400 text-sm">Ukur kecepatan koneksi Anda</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="https://www.speedtest.net" target="_blank" class="speedtest-card p-5 bg-white/5 rounded-xl border border-purple-500/20 hover:border-purple-500/50 transition group bounce-in" style="animation-delay: 0.1s">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-rocket text-xl text-white"></i>
+                            </div>
+                            <h4 class="font-bold mb-1">Speedtest by Ookla</h4>
+                            <p class="text-xs text-slate-400">speedtest.net</p>
+                        </a>
+                        
+                        <a href="https://fast.com" target="_blank" class="speedtest-card p-5 bg-white/5 rounded-xl border border-red-500/20 hover:border-red-500/50 transition group bounce-in" style="animation-delay: 0.2s">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-play text-xl text-white"></i>
+                            </div>
+                            <h4 class="font-bold mb-1">Fast.com</h4>
+                            <p class="text-xs text-slate-400">by Netflix</p>
+                        </a>
+                        
+                        <a href="https://speed.cloudflare.com" target="_blank" class="speedtest-card p-5 bg-white/5 rounded-xl border border-orange-500/20 hover:border-orange-500/50 transition group bounce-in" style="animation-delay: 0.3s">
+                            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-cloud text-xl text-white"></i>
+                            </div>
+                            <h4 class="font-bold mb-1">Cloudflare Speed</h4>
+                            <p class="text-xs text-slate-400">speed.cloudflare.com</p>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card rounded-xl p-5 border-l-4 border-yellow-500 scale-in" style="animation-delay: 0.4s">
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center shrink-0">
+                            <i class="fas fa-lightbulb text-yellow-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">Tips Speedtest Akurat</h4>
+                            <ul class="text-sm text-slate-400 space-y-1">
+                                <li>• Tutup aplikasi lain yang menggunakan internet</li>
+                                <li>• Gunakan koneksi kabel (LAN) jika memungkinkan</li>
+                                <li>• Lakukan tes beberapa kali untuk hasil akurat</li>
+                                <li>• Hindari jam sibuk (20:00 - 22:00)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+    
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 z-50 hidden">
+        <div class="toast px-4 py-3 bg-slate-800 border border-green-500/30 rounded-xl shadow-2xl flex items-center gap-3">
+            <i class="fas fa-check-circle text-green-400"></i>
+            <span class="text-sm" id="toastMsg">Berhasil!</span>
+        </div>
+    </div>
+    
+    <script>
+        // Constants
+        const packages = [
+            { id: 1, name: '5 Mbps Basic', price: 50000, speed: '5 Mbps', devices: '1-3 Perangkat' },
+            { id: 2, name: '7 Mbps + TV', price: 80000, speed: '7 Mbps', devices: '1-3 Perangkat + TV' },
+            { id: 3, name: '10 Mbps Pro', price: 100000, speed: '10 Mbps', devices: '1-5 Perangkat' }
+        ];
+        
+        const devices = [
+            { name: 'TOTOLINK ASRAMA', ip: '192.168.10.3', port: '8080', username: 'asrama' },
+            { name: 'TP LINK ZAMA', ip: '192.168.10.4', port: '8080', username: 'zama' },
+            { name: 'TOTOLINK MENARA', ip: '192.168.10.5', port: '8080', username: 'menara' },
+            { name: 'TP LINK LEK ARIS', ip: '192.168.10.6', port: '8080', username: 'lekaris' },
+            { name: 'TP LINK DHE ZEN', ip: '192.168.10.7', port: '8080', username: 'dhezen' }
+        ];
+        
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJMUDJuYRnl1fVDiMeWP7NRuGQ-PSKrEubGRCaTguRs74isrVGVyJxJRY3OAnkUKCGPQ/exec';
+        
+        let sessionData = null;
+        let clientsData = JSON.parse(localStorage.getItem('emonitor_clients')) || {};
+        
+        // Get script URL (use saved or default)
+        function getScriptUrl() {
+            return localStorage.getItem('google_script_url') || GOOGLE_SCRIPT_URL;
+        }
+        
+        // Theme Management
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            applyTheme(theme);
+            
+            document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.theme === theme) btn.classList.add('active');
+            });
+        }
+        
+        function applyTheme(theme) {
+            if (theme === 'auto') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+        }
+        
+        function loadTheme() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            applyTheme(theme);
+            document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.theme === theme) btn.classList.add('active');
+            });
+        }
+        
+        // Auth Check
+        function checkAuth() {
+            const session = localStorage.getItem('emonitor_session');
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            sessionData = JSON.parse(session);
+            
+            if (sessionData.role === 'admin') {
+                window.location.href = 'admin.html';
+                return;
+            }
+            
+            loadUserData();
+        }
+        
+        // Fetch user data from Google Sheet
+        async function fetchUserData() {
+            try {
+                const url = getScriptUrl();
+                const response = await fetch(`${url}?action=get&t=${Date.now()}`);
+                const data = await response.json();
+                
+                if (data && sessionData && data[sessionData.username]) {
+                    const sheetData = data[sessionData.username];
+                    clientsData[sessionData.username] = {
+                        ...clientsData[sessionData.username],
+                        name: sheetData.name || sessionData.name,
+                        package: parseInt(sheetData.packageId) || 1,
+                        lastPay: sheetData.lastPay || '2024-01-15'
+                    };
+                    localStorage.setItem('emonitor_clients', JSON.stringify(clientsData));
+                    loadUserData();
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+            }
+        }
+        
+        function loadUserData() {
+            const username = sessionData.username;
+            const userData = clientsData[username] || { 
+                name: sessionData.name, 
+                package: sessionData.package?.id || 1, 
+                lastPay: '2024-01-15' 
+            };
+            
+            const pkg = packages.find(p => p.id === userData.package) || packages[0];
+            const device = devices.find(d => d.username === username);
+            
+            // Set user avatar
+            document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+            document.getElementById('welcomeName').textContent = userData.name || sessionData.name;
+            
+            // Set router link
+            if (device) {
+                document.getElementById('manageRouterBtn').href = `http://${device.ip}:${device.port}`;
+            }
+            
+            // Calculate expiry
+            const lastPay = new Date(userData.lastPay);
+            const expiry = new Date(lastPay);
+            expiry.setDate(expiry.getDate() + 30);
+            
+            const today = new Date();
+            const daysLeft = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+            const isExpired = daysLeft <= 0;
+            
+            // Update status
+            if (isExpired) {
+                document.getElementById('statusText').textContent = 'Expired';
+                document.getElementById('statusText').className = 'text-xl font-bold text-red-400';
+                document.getElementById('statusSubtext').textContent = 'Segera perpanjang';
+                document.getElementById('subStatus').textContent = 'Expired';
+                document.getElementById('subStatus').className = 'px-3 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400';
+            } else {
+                document.getElementById('statusSubtext').textContent = `Berakhir dalam ${daysLeft} hari`;
+            }
+            
+            // Update package info
+            document.getElementById('packageName').textContent = pkg.name;
+            document.getElementById('packageSpeed').textContent = pkg.speed;
+            document.getElementById('packageDevices').textContent = pkg.devices;
+            document.getElementById('packagePrice').textContent = 'Rp ' + pkg.price.toLocaleString();
+            
+            // Update billing
+            document.getElementById('billAmount').textContent = 'Rp ' + pkg.price.toLocaleString();
+            document.getElementById('expiryDate').textContent = formatDate(expiry);
+            document.getElementById('lastPayDate').textContent = 'Terakhir: ' + formatDate(lastPay);
+            
+            // Update subscription view
+            document.getElementById('subPackageName').textContent = pkg.name;
+            document.getElementById('subSpeed').textContent = pkg.speed;
+            document.getElementById('subDevices').textContent = pkg.devices;
+            document.getElementById('subPrice').textContent = 'Rp ' + pkg.price.toLocaleString();
+            document.getElementById('subLastPay').textContent = formatDate(lastPay);
+            document.getElementById('subExpiry').textContent = formatDate(expiry);
+            
+            // Update progress
+            document.getElementById('daysLeft').textContent = isExpired ? 'Expired' : daysLeft + ' hari';
+            const progress = Math.max(0, Math.min(100, (daysLeft / 30) * 100));
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            if (progress < 30) {
+                document.getElementById('progressBar').className = 'progress-bar h-full rounded-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-1000';
+            } else if (progress < 60) {
+                document.getElementById('progressBar').className = 'progress-bar h-full rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-1000';
+            }
+            
+            // Load router status
+            renderRouterStatus();
+        }
+        
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        
+        function renderRouterStatus() {
+            const list = document.getElementById('routerStatusList');
+            list.innerHTML = devices.map((device, index) => `
+                <div class="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition slide-in" style="animation-delay: ${index * 0.1}s">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                            <i class="fas fa-wifi text-green-400"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium">${device.name}</p>
+                            <p class="text-xs text-slate-500">Access Point</p>
+                        </div>
+                    </div>
+                    <span class="font-mono text-green-400">${device.ip}</span>
+                </div>
+            `).join('');
+        }
+        
+        function logout() {
+            localStorage.removeItem('emonitor_session');
+            window.location.href = 'index.html';
+        }
+        
+        // Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('mobileOverlay').classList.toggle('hidden');
+        }
+        
+        // Views
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById('view-' + viewId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            document.getElementById('nav-' + viewId).classList.add('active');
+            
+            const titles = {
+                'dashboard': 'Dashboard',
+                'billing': 'Langganan & Tagihan',
+                'monitor-dns': 'DNS Server',
+                'monitor-ap': 'Router / AP',
+                'speedtest': 'Speedtest'
+            };
+            document.getElementById('pageTitle').textContent = titles[viewId] || 'Dashboard';
+            
+            if (window.innerWidth < 768) {
+                toggleSidebar();
+            }
+        }
+        
+        // Copy to clipboard
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text);
+            btn.classList.add('copied');
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            showToast('Nomor rekening berhasil dicopy!');
+            
+            setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = '<i class="fas fa-copy"></i>';
+            }, 2000);
+        }
+        
+        // Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+        
+        // Time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
+        }
+        
+        // Fetch latest data from Google Sheet
+        async function fetchLatestData() {
+            const syncEl = document.getElementById('lastSyncClient');
+            if (syncEl) {
+                syncEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyinkronkan...';
+            }
+            
+            try {
+                const url = getScriptUrl();
+                const response = await fetch(`${url}?action=get&t=${Date.now()}`);
+                const data = await response.json();
+                
+                if (data && sessionData && data[sessionData.username]) {
+                    const sheetData = data[sessionData.username];
+                    
+                    // Update local data with sheet data
+                    if (!clientsData[sessionData.username]) {
+                        clientsData[sessionData.username] = {};
+                    }
+                    
+                    clientsData[sessionData.username] = {
+                        ...clientsData[sessionData.username],
+                        name: sheetData.name || sessionData.name,
+                        package: parseInt(sheetData.packageId) || 1,
+                        lastPay: sheetData.lastPay || clientsData[sessionData.username]?.lastPay || '2024-01-15',
+                        price: parseInt(sheetData.price) || 50000
+                    };
+                    
+                    localStorage.setItem('emonitor_clients', JSON.stringify(clientsData));
+                    loadUserData();
+                    
+                    if (syncEl) {
+                        const now = new Date();
+                        syncEl.innerHTML = `<i class="fas fa-check-circle text-green-400"></i> Tersinkronisasi (${now.toLocaleTimeString('id-ID')})`;
+                    }
+                    
+                    showToast('Data berhasil disinkronkan!');
+                    console.log('Data synced from Google Sheet');
+                } else {
+                    if (syncEl) {
+                        syncEl.innerHTML = '<i class="fas fa-info-circle text-yellow-400"></i> Data belum tersedia di server';
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch from sheet:', err);
+                if (syncEl) {
+                    syncEl.innerHTML = '<i class="fas fa-exclamation-circle text-red-400"></i> Gagal sinkronisasi';
+                }
+            }
+        }
+        
+        // Init
+        checkAuth();
+        loadTheme();
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Fetch latest data on load
+        setTimeout(fetchLatestData, 1000);
+        
+        // Auto-refresh data every 5 minutes
+        setInterval(fetchLatestData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
